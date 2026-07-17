@@ -34,7 +34,7 @@
     room?: import('livekit-client').Room | null;
   } = $props();
 
-  let chatOpen = $state(false);
+  let chatOpen = $state(true);
   let messages: Array<{ id: string; timestamp: number; from: { isLocal: boolean }; message: string }> = $state([]);
   let clearedAt = $state(0);
 
