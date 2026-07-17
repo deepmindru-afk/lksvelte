@@ -12,6 +12,7 @@
     onIsChatOpenChange = (v: boolean) => {},
     onClear = () => {},
     className = '',
+    room = null,
   }: {
     variant?: 'default' | 'outline' | 'livekit';
     isChatOpen?: boolean;
@@ -20,6 +21,7 @@
     onIsChatOpenChange?: (v: boolean) => void;
     onClear?: () => void;
     className?: string;
+    room?: import('livekit-client').Room | null;
   } = $props();
 
   let message = $state('');
@@ -69,8 +71,17 @@
     if (message.trim() === '/clear') { onClear(); message = ''; attachments = []; return; }
     isSending = true;
     try {
-      // Send message via LiveKit - simplified for now
-      console.log('Send:', message, attachments);
+      if (room) {
+        const encoder = new TextEncoder();
+        await room.localParticipant.publishData(
+          encoder.encode(JSON.stringify({ type: 'chat', message: message.trim(), timestamp: Date.now() })),
+          { topic: 'chat' }
+        );
+        for (const att of attachments) {
+          const { sendFile } = await import('$lib/send-file');
+          await sendFile(room.localParticipant, att.file);
+        }
+      }
       message = '';
       attachments = [];
     } catch (e) { console.error(e); }

@@ -17,6 +17,7 @@
     isConnected = false,
     onDisconnect = () => {},
     className = '',
+    room = null,
   }: {
     preConnectMessage?: string;
     supportsChatInput?: boolean;
@@ -30,6 +31,7 @@
     isConnected?: boolean;
     onDisconnect?: () => void;
     className?: string;
+    room?: import('livekit-client').Room | null;
   } = $props();
 
   let chatOpen = $state(false);
@@ -64,6 +66,7 @@
         onDisconnect={onDisconnect}
         onIsChatOpenChange={(v) => chatOpen = v}
         onClear={handleClear}
+        {room}
       />
     </div>
   </div>
