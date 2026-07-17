@@ -1,10 +1,10 @@
 <script lang="ts">
   import { cn } from '$lib/cn';
-  import { Room } from 'livekit-client';
   import WelcomeView from '$lib/components/app/welcome-view.svelte';
   import { AgentSessionView_01 } from '$lib/components/agents-ui/blocks/agent-session-view-01/index.js';
   import type { AppConfig } from '$lib/app-config';
   import { getResolvedTheme } from '$lib/stores/theme';
+  import type { Room } from 'livekit-client';
 
   let {
     appConfig,
@@ -53,12 +53,9 @@
       }
 
       const data = await res.json();
-      const livekitRoom = new Room();
+      const { Room: LiveKitRoom } = await import('livekit-client');
+      const livekitRoom = new LiveKitRoom();
       room = livekitRoom;
-
-      livekitRoom.on('connected', () => {
-        isConnected = true;
-      });
 
       livekitRoom.on('disconnected', () => {
         isConnected = false;
@@ -66,6 +63,7 @@
       });
 
       await livekitRoom.connect(data.serverUrl, data.participantToken);
+      isConnected = true;
     } catch (error) {
       console.error('Connection failed:', error);
     }
