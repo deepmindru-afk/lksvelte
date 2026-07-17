@@ -1,14 +1,15 @@
 <script lang="ts">
   import { cn } from '$lib/cn';
-  import Button from '$lib/components/ui/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
+  import { LoaderIcon } from 'lucide-svelte';
 
   let className: string = '';
   let startButtonText: string = 'Open Portal';
   let username: string = '';
   let roomName: string = '';
   let onStartCall: () => void = () => {};
-  export { className as class, startButtonText, username, roomName, onStartCall };
+  let isConnecting: boolean = false;
+  export { className as class, startButtonText, username, roomName, onStartCall, isConnecting };
 </script>
 
 <div class={cn('', className)}>
@@ -19,7 +20,19 @@
     <p class="text-foreground max-w-prose pt-1 leading-6 font-medium">Говорите с Вашим агентом голосом, в чате, показывайте изображения с камеры</p>
     <Input type="text" bind:value={username} placeholder="Ваше имя (необязательно)" class="mt-6 w-64 rounded-full text-base text-center" />
     <Input type="text" bind:value={roomName} placeholder="Название комнаты (необязательно)" class="mt-2 w-64 rounded-full text-base text-center" />
-    <Button size="lg" onclick={onStartCall} class="mt-3 w-64 rounded-full font-mono text-xs font-bold tracking-wider uppercase">{startButtonText}</Button>
+    <button
+      type="button"
+      disabled={isConnecting}
+      onclick={onStartCall}
+      class="mt-3 w-64 rounded-full font-mono text-xs font-bold tracking-wider uppercase inline-flex items-center justify-center gap-2 h-10 px-6 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+    >
+      {#if isConnecting}
+        <LoaderIcon class="size-4 animate-spin" />
+        Connecting...
+      {:else}
+        {startButtonText}
+      {/if}
+    </button>
   </section>
   <div class="fixed bottom-5 left-0 flex w-full items-center justify-center">
     <p class="text-muted-foreground max-w-prose pt-1 text-xs leading-5 font-normal text-pretty md:text-sm">

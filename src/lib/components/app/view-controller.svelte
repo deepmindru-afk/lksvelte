@@ -1,5 +1,6 @@
 <script lang="ts">
   import { cn } from '$lib/cn';
+  import { toast } from 'svelte-sonner';
   import WelcomeView from '$lib/components/app/welcome-view.svelte';
   import { AgentSessionView_01 } from '$lib/components/agents-ui/blocks/agent-session-view-01/index.js';
   import type { AppConfig } from '$lib/app-config';
@@ -21,9 +22,11 @@
   } = $props();
 
   let isConnected = $state(false);
+  let isConnecting = $state(false);
   let room = $state<Room | null>(null);
 
   async function startConnection() {
+    isConnecting = true;
     const fallbackUser = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('user') ?? `va_user_${Math.floor(Math.random() * 10000)}`;
     const identity = username || fallbackUser;
     const rname = roomName || `va_room_${Math.floor(Math.random() * 10000)}`;
@@ -64,8 +67,12 @@
 
       await livekitRoom.connect(data.serverUrl, data.participantToken);
       isConnected = true;
+      isConnecting = false;
     } catch (error) {
+      isConnecting = false;
+      const msg = error instanceof Error ? error.message : 'Connection failed';
       console.error('Connection failed:', error);
+      toast.error(msg, { duration: 6000 });
     }
   }
 
@@ -79,7 +86,7 @@
 </script>
 
 {#if !isConnected}
-  <WelcomeView startButtonText={appConfig.startButtonText} onStartCall={startConnection} bind:username bind:roomName />
+  <WelcomeView startButtonText={appConfig.startButtonText} onStartCall={startConnection} bind:username bind:roomName isConnecting={isConnecting} />
 {:else}
   <AgentSessionView_01
     supportsChatInput={appConfig.supportsChatInput}
